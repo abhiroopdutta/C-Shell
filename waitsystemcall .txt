@@ -33,11 +33,11 @@ The third argument "options" can be an OR of zero or more of the following const
 Now if we want to know exactly the kind of state change our child process went through, then we need to use the following macros which take the "status" variable as argument - 
 
 1.For terminated children - 
-a. WIFEXITED(status) - returns true if the child process terminated normally (can be used with all 3 variants of 		"option").
-for more information another macro can be used - WEXITSTATUS(status), this macro will return the exit status of the 		child, this consists of the 8 LSBs of the "status" argument, obviously this macro can be used only if WIFEXITED() 		returned true.
+a. WIFEXITED(status) - returns true if the child process terminated normally (can be used with all 3 variants of "option").
+For more information another macro can be used - WEXITSTATUS(status), this macro will return the exit status of the child, this consists of the 8 LSBs of the "status" argument, obviously this macro can be used only if WIFEXITED() returned true.
 
 b. WIFSIGNALED(status) - returns true if the child process was terminated by a signal (can be used with all 3 variants of 	  "option").
-for more information another macro can be used - WTERMSIG(status), this macro will return the number of the signal that 	caused the child process to terminate, obviously this macro can be used only if WIFSIGNALED() returned true.
+For more information another macro can be used - WTERMSIG(status), this macro will return the number of the signal that caused the child process to terminate, obviously this macro can be used only if WIFSIGNALED() returned true.
 	
 2. For stopped children
 
