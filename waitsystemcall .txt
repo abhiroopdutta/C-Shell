@@ -2,117 +2,55 @@ the function - pid_t waitpid(pid_t pid, int *status, int options)
 
 to call it -   waitpid(pid, &status, options)
 
-
-
 The waitpid system call is used by the parent process to wait for state change in the child process.
 
-
-
 A state change can be -
-
-
-	1. The child process is terminated, termination can happen in two ways - 
-	
-		a. normal termination - i.e., if child has terminated by calling exit(2) or _exit(3) or returned from main.
-
-		b. abnormal termination - i.e., if the child was terminated by a signal.
-
- 	2. The child process is stopped by a signal - i.e., stopped by delivery of a signal
-
-	3. The child process is resumed by a signal - i.e., resumed by delivery of SIGCONT.
-
-
+1. The child process is terminated, termination can happen in two ways - 	
+	a. normal termination - i.e., if child has terminated by calling exit(2) or _exit(3) or returned from main.
+	b. abnormal termination - i.e., if the child was terminated by a signal.
+2. The child process is stopped by a signal - i.e., stopped by delivery of a signal
+3. The child process is resumed by a signal - i.e., resumed by delivery of SIGCONT.
 
 The default arguments passed to waitpid are -  waitpid(-1, &status, 0), this is equivalent to the system call wait(&status).
 
 With these default arguments, the wait system call blocks the execution of parent process until one of its children terminates, and after the child terminates, the status information is stored in the variable "status", whose address was passed to the waitpid system call.
 
-
-
-
-
-
 However the waitpid() system call gives us a lot more options, for example the first argument pid can have the following variants - 
-
-	
-
-1. pid = -1 , meaning wait for state change of any child process
-	
-2. pid = 0, meaning wait for state change of any child process whose process group ID is equal to that of the calling process
-	
-3. pid > 0, meaning wait for state change of that child process whose process ID is equal to the value of pid
-	
+1. pid = -1 , meaning wait for state change of any child process	
+2. pid = 0, meaning wait for state change of any child process whose process group ID is equal to that of the calling process	
+3. pid > 0, meaning wait for state change of that child process whose process ID is equal to the value of pid	
 4. pid < -1, meaning wait for the state change of any child process whose process group ID is equal to the absolute value of pid.
 
 
-
-
-
-
 The third argument "options" can be an OR of zero or more of the following constants : 
-
-
 	
-1. WNOHANG - if this is used, then the call to waitpid() returns status immediately without waiting for the specified process to terminate. Normally, call to 		waitpid() causes the calling process to be blocked until status information from the specified process is available, however, the WNOHANG option prevents the 		calling process from being blocked. If status information is not available, waitpid returns 0.
+1. WNOHANG - if this is used, then the call to waitpid() returns status immediately without waiting for the specified process to terminate. Normally, call to waitpid() causes the calling process to be blocked until status information from the specified process is available, however, the WNOHANG option prevents the calling process from being blocked. If status information is not available, waitpid returns 0.
 
-
-
-	2. WUNTRACED - if this is used, then the call to waitpid() will return status information for the specified process not only when it is terminated but also 		when it has been stopped, normally status information is returned only for terminated processes.
-
-
+2. WUNTRACED - if this is used, then the call to waitpid() will return status information for the specified process not only when it is terminated but also when it has been stopped, normally status information is returned only for terminated processes.
 	
-3. WCONTINUED - if this is used, then the call to waitpid() will return status information for the specified process not only when it is terminated by also 		when is has been resumed/continued by the delivery of SIGCONT, normally status information is returned only for terminated processes.
-
-
-
-
-
+3. WCONTINUED - if this is used, then the call to waitpid() will return status information for the specified process not only when it is terminated by also when is has been resumed/continued by the delivery of SIGCONT, normally status information is returned only for terminated processes.
 
 Now if we want to know exactly the kind of state change our child process went through, then we need to use the following macros which take the "status" variable as argument - 
-	1.For terminated children
 
+1.For terminated children - 
+a. WIFEXITED(status) - returns true if the child process terminated normally (can be used with all 3 variants of "option").
+For more information another macro can be used - WEXITSTATUS(status), this macro will return the exit status of the child, this consists of the 8 LSBs of the "status" argument, obviously this macro can be used only if WIFEXITED() returned true.
 
-		a. WIFEXITED(status) - returns true if the child process terminated normally (can be used with all 3 variants of "option").
-
-
-
-		for more information another macro can be used - WEXITSTATUS(status), this macro will return the exit status of the child, this consists of the 8 LSBs 		of the "status" argument, obviously this macro can be used only if WIFEXITED() returned true.
-
-
-
-		b. WIFSIGNALED(status) - returns true if the child process was terminated by a signal (can be used with all 3 variants of "option").
-
-
-
-		for more information another macro can be used - WTERMSIG(status), this macro will return the number of the signal that caused the child process to 			terminate, obviously this macro can be used only if WIFSIGNALED() returned true.
-
-
+b. WIFSIGNALED(status) - returns true if the child process was terminated by a signal (can be used with all 3 variants of "option").
+For more information another macro can be used - WTERMSIG(status), this macro will return the number of the signal that caused the child process to terminate, obviously this macro can be used only if WIFSIGNALED() returned true.
 	
 2. For stopped children
 
+WIFSTOPPED(status) - returns true if the child process was stopped by delivery of a signal (can only be used if WUNTRACED was used)
 
+for more information another macro can be used - WSTOPSIG(status), this macro will return the number of the signal which caused the child process to stop, obviously this macro can be used only if WIFSTOPPED() returned true.
 
-		WIFSTOPPED(status) - returns true if the child process was stopped by delivery of a signal (can only be used if WUNTRACED was used)
+3.For resumed children
 
-
-
-		for more information another macro can be used - WSTOPSIG(status), this macro will return the number of the signal which caused the child process to 			stop, obviously this macro can be used only if WIFSTOPPED() returned true.
-
-
-
-	3.For resumed children
-
-
-
-		WIFCONTINUED(status) - returns true if the child process was resumed by delivery of SIGCONT (can only be used if WIFCONTINUED was used)
-
-
-
-
+WIFCONTINUED(status) - returns true if the child process was resumed by delivery of SIGCONT (can only be used if WIFCONTINUED was used)
 
 
 Return value :
-
-	waitpid(): on success, returns the process ID of the child whose state has changed; if WNOHANG was specified and one or more child(ren) specified by pid exist, 	but have not yet changed state, then 0 is returned. On error, -1 is returned. 
+waitpid(): on success, returns the process ID of the child whose state has changed; if WNOHANG was specified and one or more child(ren) specified by pid exist, but have not yet changed state, then 0 is returned. On error, -1 is returned. 
 
 
