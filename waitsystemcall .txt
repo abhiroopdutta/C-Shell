@@ -42,7 +42,6 @@ For more information another macro can be used - WTERMSIG(status), this macro wi
 2. For stopped children
 
 WIFSTOPPED(status) - returns true if the child process was stopped by delivery of a signal (can only be used if WUNTRACED was used)
-
 for more information another macro can be used - WSTOPSIG(status), this macro will return the number of the signal which caused the child process to stop, obviously this macro can be used only if WIFSTOPPED() returned true.
 
 3.For resumed children
