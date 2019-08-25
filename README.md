@@ -22,3 +22,5 @@ This particular variant expects a program name and an array (also called a vecto
 
 
 https://stackoverflow.com/questions/5744393/why-is-the-first-argument-of-getline-a-pointer-to-pointer-char-instead-of-c/36098042
+
+https://stackoverflow.com/questions/4051347/in-c-can-i-initialize-a-string-in-a-pointer-declaration-the-same-way-i-can-init/4051454
